@@ -103,7 +103,11 @@ export async function calcularDistanciaServer(
   destino: { lat: number; lng: number },
 ): Promise<{ distancia_km: number; duracion_min: number }> {
   await requireRole("admin");
-  const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+  // Distance Matrix se llama server-side. Si la key pública (NEXT_PUBLIC_GOOGLE_MAPS_KEY)
+  // tiene restricción por HTTP referrer, Google la rechaza para llamadas servidor.
+  // Por eso preferimos GOOGLE_MAPS_SERVER_KEY (sin restricción de referrer); cae a la
+  // pública solo en local dev donde la key no tiene restricciones.
+  const key = process.env.GOOGLE_MAPS_SERVER_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
   if (!key || key.startsWith("TODO")) {
     throw new Error("Google Maps key no configurada");
   }
